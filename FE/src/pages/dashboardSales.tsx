@@ -1,421 +1,540 @@
-"use client"
+import { useState, useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Search, ChevronDown, Download, Eye, LogOut, Home, X, Plus } from 'lucide-react';
 
-import { useState, useEffect } from "react"
-import { Search, Download, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Users, DollarSign, Eye, Plus, LogOut, ChevronDown, User2, Home } from "lucide-react"
+const DashboardSales = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  
+  // Filter states
+  const [filterEkosistem, setFilterEkosistem] = useState('');
+  const [filterTelda, setFilterTelda] = useState('');
+  const [filterSTO, setFilterSTO] = useState('');
+  const [showEkosistemDropdown, setShowEkosistemDropdown] = useState(false);
+  const [showTeldaDropdown, setShowTeldaDropdown] = useState(false);
+  
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const ekosistemDropdownRef = useRef<HTMLDivElement>(null);
+  const teldaDropdownRef = useRef<HTMLDivElement>(null);
+  const itemsPerPage = 10;
 
-interface SalesData {
-  id: string
-  tanggal: string
-  kategori: string
-  namaSales: string
-  telda: string
-  sto: string
-  jenisKegiatan: string
-  namaPoi: string
-  alamat: string
-  ekosistem: string
-  visitKe: number
-  namaPic: string
-  jabatanPic: string
-  noHp: string
-  provider: string
-  detailProvider: string
-  abonemen: string
-}
+  // Current user info (biasanya dari auth/session)
+  const currentUser = {
+    name: "John Doe",
+    role: "Sales",
+    telda: "Ketintang"
+  };
 
-interface DashboardStats {
-  totalVisit: number
-  visitBulanIni: number
-  prospekAktif: number
-  konversiRate: number
-}
+  // Filter options
+  const ekosistemOptions = [
+    "Ruko", "Sekolah", "Hotel", "Multifinance", "Health", "Ekspedisi",
+    "Energi", "Agriculture", "Properti", "Manufaktur", "Media & Communication"
+  ];
 
-export default function DashboardSales() {
-  const [salesData, setSalesData] = useState<SalesData[]>([])
-  const [filteredData, setFilteredData] = useState<SalesData[]>([])
-  const [stats, setStats] = useState<DashboardStats>({
-    totalVisit: 0,
-    visitBulanIni: 0,
-    prospekAktif: 0,
-    konversiRate: 0,
-  })
+  const teldaSTOMapping = {
+    "Bangkalan": ["SPG", "KML", "ARB", "KPP", "BKL", "OMB", "BEA", "TBU"],
+    "Gresik": ["CRM", "POG", "BPG", "DDS", "SDY", "KDE", "BWN", "GSK"],
+    "Lamongan": ["SDD", "LMG", "BBA", "BDG"],
+    "Pamekasan": ["BAB", "ABT", "SPK", "PRG", "AJA", "WRP", "SMP", "PME", "SPD", "MSL"],
+    "Tandes": ["DMO", "TNS", "KNN", "BBE", "KLN", "LKI", "KRP"],
+    "Ketintang": ["WRU", "IJK", "RKT", "TPO"],
+    "Manyar": ["GBG", "MYR", "JGR", "MGO"],
+    "Kanjeran": ["KPS", "PRK", "KBL", "KJR"]
+  };
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterKategori, setFilterKategori] = useState("")
-  const [filterEkosistem, setFilterEkosistem] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [showDetailModal, setShowDetailModal] = useState(false)
-  const [selectedData, setSelectedData] = useState<SalesData | null>(null)
-  const [showUserDropdown, setShowUserDropdown] = useState(false)
-
-  const itemsPerPage = 10
-  // Mock data for current sales user (in real app, fetch from API based on user session)
-  const currentSalesName = "John Doe" // This should come from user session/context
-
-  useEffect(() => {
-    // Check authentication status
-    /*const isAuthenticated = localStorage.getItem("isAuthenticated")
-    if (isAuthenticated !== "true") {
-      // Redirect to login page
-      window.location.href = "/login"
-      return
-    }*/
-
-    // Mock API call to fetch sales data - DATA DUMMY
-    const mockData: SalesData[] = [
-      {
-        id: "1",
-        tanggal: "2024-01-15",
-        kategori: "Visit Baru",
-        namaSales: "John Doe",
-        telda: "Ketintang",
-        sto: "WRU",
-        jenisKegiatan: "Door to door",
-        namaPoi: "Toko ABC",
-        alamat: "Jl. Sudirman No. 123",
-        ekosistem: "Ruko",
-        visitKe: 1,
-        namaPic: "Jane Smith",
-        jabatanPic: "Manager",
-        noHp: "081234567890",
-        provider: "Telkom",
-        detailProvider: "Indihome",
-        abonemen: "Rp 12.000",
-      },
-      {
-        id: "2",
-        tanggal: "2024-01-16",
-        kategori: "Follow Up",
-        namaSales: "John Doe",
-        telda: "Gresik",
-        sto: "SDY",
-        jenisKegiatan: "Door to door",
-        namaPoi: "RS ABCDE",
-        alamat: "Jl. Asia Afrika No. 456",
-        ekosistem: "Health",
-        visitKe: 2,
-        namaPic: "Bob Wilson",
-        jabatanPic: "Owner",
-        noHp: "081987654321",
-        provider: "Kompetitor",
-        detailProvider: "BizNet",
-        abonemen: "Rp 20.000",
-      },
-      {
-        id: "3",
-        tanggal: "2025-02-16",
-        kategori: "Follow Up",
-        namaSales: "John Doe",
-        telda: "Ketintang",
-        sto: "WRU",
-        jenisKegiatan: "Door to door",
-        namaPoi: "Gd Bangkit",
-        alamat: "Jl. Asia Afrika No. 456",
-        ekosistem: "Multifinance",
-        visitKe: 2,
-        namaPic: "Bob marlin",
-        jabatanPic: "Owner",
-        noHp: "081987654321",
-        provider: "Telkom Group",
-        detailProvider: "Indibiz",
-        abonemen: "Rp 1.000.000",
-      },
-    ]
-    // Filter data to show only current sales person's data
-    const userSalesData = mockData.filter((item) => item.namaSales === currentSalesName)
-    setSalesData(userSalesData)
-    setFilteredData(userSalesData)
-  }, [])
-
-  useEffect(() => {
-    let filtered = salesData
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (item) =>
-          item.namaPoi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.namaPic.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-    if (filterKategori) {
-      filtered = filtered.filter((item) => item.kategori === filterKategori)
-    }
-    if (filterEkosistem) {
-      filtered = filtered.filter((item) => item.ekosistem === filterEkosistem)
-    }
-    setFilteredData(filtered)
-    setCurrentPage(1)
-  }, [searchTerm, filterKategori, filterEkosistem, salesData])
-
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (!target.closest(".user-dropdown-container")) {
-        setShowUserDropdown(false)
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false);
       }
-    }
+      if (ekosistemDropdownRef.current && !ekosistemDropdownRef.current.contains(event.target as Node)) {
+        setShowEkosistemDropdown(false);
+      }
+      if (teldaDropdownRef.current && !teldaDropdownRef.current.contains(event.target as Node)) {
+        setShowTeldaDropdown(false);
+      }
+    };
 
-    if (showUserDropdown) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => 
+      document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [showUserDropdown])
+  // Handle logout
+  const handleLogout = () => {
+    window.location.href = '/login';
+  };
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
-  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  // DATA DUMMY - hanya data dari sales yang login
+  const sampleData = [
+    {
+      id: 1,
+      tanggal: '2024-01-15',
+      kategori: 'Visit Baru',
+      namaSales: 'John Doe',
+      telda: 'Ketintang',
+      sto: 'WRU',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'Toko ABC',
+      alamat: 'Jl. Sudirman No. 123',
+      ekosistem: 'Ruko',
+      visitKe: 1,
+      namaPIC: 'Jane Smith',
+      jabatanPIC: 'Manager',
+      noHP: '081234567890',
+      provider: 'Telkom',
+      detailProvider: 'Indihome',
+      abonemen: 'Rp 12.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Tidak Tertarik Berlangganan Indibiz',
+      detailInformasi: 'Sudah puas dengan indihome',
+      eviden: 'foto_survey.jpg'
+    },
+    {
+      id: 3,
+      tanggal: '2025-02-16',
+      namaSales: 'John Doe',
+      kategori: 'Follow Up',
+      telda: 'Ketintang',
+      sto: 'WRU',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'Gd Bangkit',
+      alamat: 'Jl. Asia Afrika No. 456',
+      ekosistem: 'Multifinance',
+      visitKe: 2,
+      namaPIC: 'Bob marlin',
+      jabatanPIC: 'Owner',
+      noHP: '081987654321',
+      provider: 'Telkom Group',
+      detailProvider: 'Indibiz',
+      abonemen: 'Rp 1.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Tertarik Berlangganan Indibiz',
+      detailInformasi: 'sudah berlangganan',
+      eviden: 'whatsapp.jpg'
+    },
+    {
+      id: 7,
+      tanggal: '2024-02-20',
+      kategori: 'Visit Baru',
+      namaSales: 'John Doe',
+      telda: 'Ketintang',
+      sto: 'IJK',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'CV Maju Jaya',
+      alamat: 'Jl. Raya Ketintang No. 88',
+      ekosistem: 'Manufaktur',
+      visitKe: 1,
+      namaPIC: 'Pak Surya',
+      jabatanPIC: 'Direktur',
+      noHP: '081678901234',
+      provider: 'Kompetitor',
+      detailProvider: 'XL Axiata',
+      abonemen: 'Rp 8.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Ragu-ragu atau masih dipertimbangkan',
+      detailInformasi: 'Perlu evaluasi budget',
+      eviden: 'foto_cv.jpg'
+    },
+    {
+      id: 8,
+      tanggal: '2024-02-22',
+      kategori: 'Follow Up',
+      namaSales: 'John Doe',
+      telda: 'Ketintang',
+      sto: 'TPO',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'Klinik Sehat Sentosa',
+      alamat: 'Jl. Ketintang Baru No. 45',
+      ekosistem: 'Health',
+      visitKe: 3,
+      namaPIC: 'Dr. Sari',
+      jabatanPIC: 'Dokter',
+      noHP: '081789012345',
+      provider: 'Telkom',
+      detailProvider: 'Indihome',
+      abonemen: 'Rp 3.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Tertarik Berlangganan Indibiz',
+      detailInformasi: 'Butuh upgrade untuk sistem EMR',
+      eviden: 'presentasi_klinik.pdf'
+    }
+  ];
+
+  // Filter data hanya untuk sales yang login
+  const userSalesData = sampleData.filter(item => item.namaSales === currentUser.name);
+
+  // Apply filters
+  const filteredData = userSalesData.filter(item => {
+    const matchesSearch = Object.values(item).some(value =>
+      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const matchesEkosistem = !filterEkosistem || item.ekosistem === filterEkosistem;
+    const matchesTelda = !filterTelda || item.telda === filterTelda;
+    const matchesSTO = !filterSTO || item.sto === filterSTO;
+    
+    return matchesSearch && matchesEkosistem && matchesTelda && matchesSTO;
+  });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Handle filter changes
+  const handleTeldaChange = (telda: string) => {
+    setFilterTelda(telda);
+    setFilterSTO(''); // Reset STO when Telda changes
+    setShowTeldaDropdown(false);
+  };
+
+  const handleEkosistemChange = (ekosistem: string) => {
+    setFilterEkosistem(ekosistem);
+    setShowEkosistemDropdown(false);
+  };
+
+  const clearFilters = () => {
+    setFilterEkosistem('');
+    setFilterTelda('');
+    setFilterSTO('');
+    setSearchTerm('');
+  };
 
   const getEkosistemBadge = (ekosistem: string) => {
     const badges: Record<string, string> = {
-    Ruko: "bg-blue-100 text-blue-800",
-    Sekolah: "bg-yellow-100 text-yellow-800",
-    Hotel: "bg-pink-100 text-pink-800",
-    Multifinance: "bg-purple-100 text-purple-800",
-    Health: "bg-green-100 text-green-800",
-    Ekspedisi: "bg-orange-100 text-orange-800",
-    Energi: "bg-red-100 text-red-800",
-    Agriculture: "bg-lime-100 text-lime-800",
-    Properti: "bg-cyan-100 text-cyan-800",
-    Manufaktur: "bg-teal-100 text-teal-800",
-    MediaCommunication: "bg-rose-100 text-rose-800"
+      Ruko: "bg-blue-100 text-blue-800",
+      Sekolah: "bg-yellow-100 text-yellow-800",
+      Hotel: "bg-pink-100 text-pink-800",
+      Multifinance: "bg-purple-100 text-purple-800",
+      Health: "bg-green-100 text-green-800",
+      Ekspedisi: "bg-orange-100 text-orange-800",
+      Energi: "bg-red-100 text-red-800",
+      Agriculture: "bg-lime-100 text-lime-800",
+      Properti: "bg-cyan-100 text-cyan-800",
+      Manufaktur: "bg-teal-100 text-teal-800",
+      "Media & Communication": "bg-rose-100 text-rose-800"
     }
     return badges[ekosistem] || "bg-gray-100 text-gray-800"
   }
 
-  const handleDetail = (data: SalesData) => {
-    setSelectedData(data)
-    setShowDetailModal(true)
-  }
-
-  const handleExportData = () => {
-    // Export only current sales data
-    alert("Export data sales Anda dalam format CSV")
-  }
-
-  const handleLogout = () => {
-    // Clear authentication status
-    localStorage.removeItem("isAuthenticated")
-    // Redirect to login page
-    window.location.href = "/login"
-  }
-
-  const toggleUserDropdown = () => {
-    setShowUserDropdown(!showUserDropdown)
-  }
+  const activeFiltersCount = [filterEkosistem, filterTelda, filterSTO].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200">
-        <div className="p-6">
-          <div className="flex items-center space-x-3">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/id/thumb/c/c4/Telkom_Indonesia_2013.svg/1200px-Telkom_Indonesia_2013.svg.png" 
-              alt="Telkom Indonesia"
-              className="h-12 w-auto\"
-              onError={(e) => {
-                ;(e.target as HTMLImageElement).style.display = "none"
-              }}
-            />
+      <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-lg transition-all duration-300 flex flex-col`}>
+        {/* Logo Section */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className={`${sidebarCollapsed ? 'hidden' : 'block'}`}>
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/id/thumb/c/c4/Telkom_Indonesia_2013.svg/1200px-Telkom_Indonesia_2013.svg.png" 
+                alt="Telkom Indonesia" 
+                className="h-12 w-auto"
+              />
+            </div>
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
           </div>
         </div>
-        <nav className="mt-6">
-          <div className="px-3">
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md">
-              <Home className="mr-3 w-5 h-5" />
-              Dashboard
-            </div>
-          </div>
+
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-4 space-y-2">
+          <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+            <Home size={20} />
+            {!sidebarCollapsed && <span className="font-medium">Dashboard</span>}
+          </button>
         </nav>
-        {/* Sales Info with Dropdown */}
-        <div className="absolute bottom-0 left-4 right-4 mb-2 border-t border-gray-200">
-          <div className="user-dropdown-container relative">
+
+        {/* User Info with Dropdown */}
+        <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
+          <div className={`${sidebarCollapsed ? 'hidden' : 'block'}`}>
             <button
-              onClick={toggleUserDropdown}
-              className="w-full flex items-center justify-between hover:bg-gray-50 rounded-md p-2 cursor-pointer transition-colors"
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              className="w-full flex items-center justify-between space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {currentSalesName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </span>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-red-600 font-medium">{currentUser.name.charAt(0)}</span>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">{currentSalesName}</p>
-                  <p className="text-xs text-gray-500">Sales</p>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
+                  <p className="text-xs text-gray-500">{currentUser.role} - {currentUser.telda}</p>
                 </div>
               </div>
-              <ChevronDown
-                className={`h-4 w-4 text-gray-500 transition-transform ${showUserDropdown ? "rotate-180" : ""}`}
+              <ChevronDown 
+                size={16} 
+                className={`text-gray-400 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} 
               />
             </button>
 
-            {/* User Dropdown Menu */}
+            {/* Dropdown Menu */}
             {showUserDropdown && (
-              <div className="absolute bottom-full left-4 right-4 mb-2 bg-white border border-gray-200 rounded-ld shadow-lg z-50">
+              <div className="absolute bottom-full left-4 right-4 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="py-2">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <LogOut size={16} />
-                    <span className="font-medium"> Logout </span>
+                    <span className="font-medium">Logout</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
+                  
+          {/* Collapsed state - just show logout icon */}
+          {sidebarCollapsed && (
+            <button
+              onClick={handleLogout}
+              className="w-full p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center"
+              title="Logout"
+            >
+              <LogOut size={20} />
+            </button>
+          )}
         </div>
       </div>
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Dashboard Sales</h1>
-                <p className="text-sm text-gray-600">Kelola data kunjungan dan monitoring aktivitas Anda</p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={handleExportData}
-                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Data
-                </button>
-              </div>
+        <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-sm text-gray-600">Monitoring aktivitas Anda</p>
             </div>
           </div>
         </header>
-        {/* Data Table */}
-        <main className="flex-1 p-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            {/* Search and Filter */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Cari data..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                    />
-                  </div>
 
-                  <select
-                    value={filterKategori}
-                    onChange={(e) => setFilterKategori(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  >
-                    <option value="">Semua Kategori</option>
-                    <option value="Visit Baru">Visit Baru</option>
-                    <option value="Follow Up">Follow Up</option>
-                  </select>
+        {/* Content Area */}
+        <main className="flex-1 overflow-auto p-6">
+          {/* Stats Cards */}
 
-                  <select
-                    value={filterEkosistem}
-                    onChange={(e) => setFilterEkosistem(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  >
-                    <option value="">Semua Ekosistem</option>
-                    <option value="Ruko">Ruko</option>
-                    <option value="Sekolah">Sekolah</option>
-                    <option value="Hotel">Hotel</option>
-                    <option value="Multifinance">Multifinance</option>
-                    <option value="Health">Health</option>
-                    <option value="Ekspedisi">Ekspedisi</option>
-                    <option value="Energi">Energi</option>
-                    <option value="Agriculture">Agriculture</option>
-                    <option value="Properti">Properti</option>
-                    <option value="Manufaktur">Manufaktur</option>
-                    <option value="Media & Communication">Media & Communication</option>
-
-                  </select>
+          {/* Search and Filter Bar */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4 flex-1">
+                {/* Search Input */}
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Cari data..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
 
-                <p className="text-sm text-gray-500">
-                  Menampilkan {paginatedData.length} dari {filteredData.length} data Anda
-                </p>
+                {/* Ekosistem Filter */}
+                <div className="relative" ref={ekosistemDropdownRef}>
+                  <button
+                    onClick={() => setShowEkosistemDropdown(!showEkosistemDropdown)}
+                    className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
+                      filterEkosistem ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                    }`}
+                  >
+                    <span>{filterEkosistem || 'Ekosistem'}</span>
+                    <ChevronDown size={16} className={`transition-transform ${showEkosistemDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showEkosistemDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleEkosistemChange('')}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
+                        >
+                          Semua Ekosistem
+                        </button>
+                        {ekosistemOptions.map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => handleEkosistemChange(option)}
+                            className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                              filterEkosistem === option ? 'bg-red-50 text-red-700' : ''
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Telda Filter */}
+                <div className="relative" ref={teldaDropdownRef}>
+                  <button
+                    onClick={() => setShowTeldaDropdown(!showTeldaDropdown)}
+                    className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
+                      filterTelda ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                    }`}
+                  >
+                    <span>{filterTelda || 'Telda'}</span>
+                    <ChevronDown size={16} className={`transition-transform ${showTeldaDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showTeldaDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleTeldaChange('')}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
+                        >
+                          Semua Telda
+                        </button>
+                        {Object.keys(teldaSTOMapping).map((telda) => (
+                          <div key={telda}>
+                            <button
+                              onClick={() => handleTeldaChange(telda)}
+                              className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors font-medium ${
+                                filterTelda === telda ? 'bg-red-50 text-red-700' : ''
+                              }`}
+                            >
+                              {telda}
+                            </button>
+                            {filterTelda === telda && (
+                              <div className="bg-gray-50 border-t border-gray-100">
+                                <div className="px-4 py-2">
+                                  <p className="text-xs text-gray-500 mb-2">Pilih STO:</p>
+                                  <div className="grid grid-cols-2 gap-1">
+                                    <button
+                                      onClick={() => setFilterSTO('')}
+                                      className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
+                                        !filterSTO ? 'bg-white text-red-600' : 'text-gray-600'
+                                      }`}
+                                    >
+                                      Semua STO
+                                    </button>
+                                    {teldaSTOMapping[telda as keyof typeof teldaSTOMapping].map((sto) => (
+                                      <button
+                                        key={sto}
+                                        onClick={() => setFilterSTO(sto)}
+                                        className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
+                                          filterSTO === sto ? 'bg-white text-red-600' : 'text-gray-600'
+                                        }`}
+                                      >
+                                        {sto}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Clear Filters Button */}
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center space-x-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X size={16} />
+                    <span className="text-sm">Clear ({activeFiltersCount})</span>
+                  </button>
+                )}
+              </div>
+              
+              <div className="text-sm text-gray-500">
+                Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredData.length)} dari {filteredData.length} data
               </div>
             </div>
-            {/* Table */}
+
+            {/* Active Filters Display */}
+            {activeFiltersCount > 0 && (
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
+                <span className="text-sm text-gray-500">Filter aktif:</span>
+                {filterEkosistem && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                    Ekosistem: {filterEkosistem}
+                    <button
+                      onClick={() => setFilterEkosistem('')}
+                      className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {filterSTO && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                    STO: {filterSTO}
+                    <button
+                      onClick={() => setFilterSTO('')}
+                      className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Data Table */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tanggal
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nama
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kategori
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Telda
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      STO
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nama POI
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Alamat
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ekosistem
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Visit Ke
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Provider
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Abonemen
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Action
-                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Sales</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telda</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STO</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kegiatan</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama POI</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ekosistem</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visit ke</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama PIC</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jabatan PIC</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Provider</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abonemen</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Feedback</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Informasi</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eviden</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
+                  {currentData.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.tanggal}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.namaSales}</td>
-
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            item.kategori === "Visit Baru"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-orange-100 text-orange-800"
-                          }`}
-                        >
-                          {item.kategori}
-                        </span>
-                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.kategori}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.namaSales}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.telda}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.sto}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{item.namaPoi}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.alamat}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                          {item.jenisKegiatan}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.namaPOI}</td>
+                      <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{item.alamat}</td>
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getEkosistemBadge(
                             item.ekosistem,
@@ -424,15 +543,42 @@ export default function DashboardSales() {
                           {item.ekosistem}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.visitKe}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.visitKe}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.namaPIC}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.jabatanPIC}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.noHP}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.provider}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.detailProvider}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.abonemen}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button
-                          onClick={() => handleDetail(item)}
-                          className="text-blue-600 hover:text-blue-900 transition-colors"
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          item.feedback === 'Bertemu dengan PIC/Owner/Manajemen' ? 'bg-green-100 text-green-800' :
+                          item.feedback === 'Tidak bertemu dengan PIC' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {item.feedback}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            item.detailFeedback === 'Tertarik Berlangganan Indibiz'
+                              ? 'bg-green-100 text-green-800'
+                              : item.detailFeedback === 'Tidak Tertarik Berlangganan Indibiz'
+                              ? 'bg-red-100 text-red-800'
+                              : item.detailFeedback === 'Ragu-ragu atau masih dipertimbangkan'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
                         >
-                          <Eye className="w-4 h-4" />
+                          {item.detailFeedback}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{item.detailInformasi}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.eviden}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors">
+                          <Eye size={16} />
                         </button>
                       </td>
                     </tr>
@@ -440,21 +586,22 @@ export default function DashboardSales() {
                 </tbody>
               </table>
             </div>
+
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+              <div className="flex items-center justify-between">
                 <div className="flex-1 flex justify-between sm:hidden">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                   >
                     Next
                   </button>
@@ -462,130 +609,36 @@ export default function DashboardSales() {
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Menampilkan <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> sampai{" "}
-                      <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span>{" "}
-                      dari <span className="font-medium">{filteredData.length}</span> hasil
+                      Menampilkan <span className="font-medium">{startIndex + 1}</span> sampai{' '}
+                      <span className="font-medium">{Math.min(endIndex, filteredData.length)}</span> dari{' '}
+                      <span className="font-medium">{filteredData.length}</span> hasil
                     </p>
                   </div>
                   <div>
                     <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      {Array.from({ length: totalPages }, (_, i) => (
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <button
-                          key={i + 1}
-                          onClick={() => setCurrentPage(i + 1)}
+                          key={page}
+                          onClick={() => handlePageChange(page)}
                           className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            currentPage === i + 1
-                              ? "z-10 bg-red-50 border-red-500 text-red-600"
-                              : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                            page === currentPage
+                              ? 'z-10 bg-red-50 border-red-500 text-red-600'
+                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          {i + 1}
+                          {page}
                         </button>
                       ))}
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
                     </nav>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </main>
       </div>
-      {/* Detail Modal */}
-      {showDetailModal && selectedData && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-90vh overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Detail Kunjungan</h3>
-            </div>
-            <div className="px-6 py-4 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tanggal</label>
-                  <p className="text-sm text-gray-900">{selectedData.tanggal}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama</label>
-                  <p className="text-sm text-gray-900">{selectedData.namaSales}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Kategori</label>
-                  <p className="text-sm text-gray-900">{selectedData.kategori}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Telda</label>
-                  <p className="text-sm text-gray-900">{selectedData.telda}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">STO</label>
-                  <p className="text-sm text-gray-900">{selectedData.sto}</p>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Nama POI</label>
-                  <p className="text-sm text-gray-900">{selectedData.namaPoi}</p>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Alamat</label>
-                  <p className="text-sm text-gray-900">{selectedData.alamat}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Ekosistem</label>
-                  <p className="text-sm text-gray-900">{selectedData.ekosistem}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Visit Ke</label>
-                  <p className="text-sm text-gray-900">{selectedData.visitKe}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama PIC</label>
-                  <p className="text-sm text-gray-900">{selectedData.namaPic}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Jabatan PIC</label>
-                  <p className="text-sm text-gray-900">{selectedData.jabatanPic}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">No HP</label>
-                  <p className="text-sm text-gray-900">{selectedData.noHp}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Provider</label>
-                  <p className="text-sm text-gray-900">{selectedData.provider}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Detail Provider</label>
-                  <p className="text-sm text-gray-900">{selectedData.detailProvider}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Abonemen</label>
-                  <p className="text-sm text-gray-900">{selectedData.abonemen}</p>
-                </div>
-              </div>
-            </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  )
-}
+  );
+};
+
+export default DashboardSales;

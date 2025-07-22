@@ -1,247 +1,353 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Search, ChevronDown, Download, BarChart3, Users, Eye, LogOut, Home, X } from 'lucide-react';
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  ChevronDown,
+  Download,
+  BarChart3,
+  Users,
+  Eye,
+  LogOut,
+  Home,
+  X,
+} from "lucide-react"
 
 const DashboardAdmin = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+
   // Filter states
-  const [filterEkosistem, setFilterEkosistem] = useState('');
-  const [filterTelda, setFilterTelda] = useState('');
-  const [filterSTO, setFilterSTO] = useState('');
-  const [showEkosistemDropdown, setShowEkosistemDropdown] = useState(false);
-  const [showTeldaDropdown, setShowTeldaDropdown] = useState(false);
-  
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const ekosistemDropdownRef = useRef<HTMLDivElement>(null);
-  const teldaDropdownRef = useRef<HTMLDivElement>(null);
-  const itemsPerPage = 10;
+  const [filterEkosistem, setFilterEkosistem] = useState("")
+  const [filterTelda, setFilterTelda] = useState("")
+  const [filterSTO, setFilterSTO] = useState("")
+  const [showEkosistemDropdown, setShowEkosistemDropdown] = useState(false)
+  const [showTeldaDropdown, setShowTeldaDropdown] = useState(false)
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const ekosistemDropdownRef = useRef<HTMLDivElement>(null)
+  const teldaDropdownRef = useRef<HTMLDivElement>(null)
+  const itemsPerPage = 10
 
   // Filter options
   const ekosistemOptions = [
-    "Ruko", "Sekolah", "Hotel", "Multifinance", "Health", "Ekspedisi",
-    "Energi", "Agriculture", "Properti", "Manufaktur", "Media & Communication"
-  ];
+    "Ruko",
+    "Sekolah",
+    "Hotel",
+    "Multifinance",
+    "Health",
+    "Ekspedisi",
+    "Energi",
+    "Agriculture",
+    "Properti",
+    "Manufaktur",
+    "Media & Communication",
+  ]
 
   const teldaSTOMapping = {
-    "Bangkalan": ["SPG", "KML", "ARB", "KPP", "BKL", "OMB", "BEA", "TBU"],
-    "Gresik": ["CRM", "POG", "BPG", "DDS", "SDY", "KDE", "BWN", "GSK"],
-    "Lamongan": ["SDD", "LMG", "BBA", "BDG"],
-    "Pamekasan": ["BAB", "ABT", "SPK", "PRG", "AJA", "WRP", "SMP", "PME", "SPD", "MSL"],
-    "Tandes": ["DMO", "TNS", "KNN", "BBE", "KLN", "LKI", "KRP"],
-    "Ketintang": ["WRU", "IJK", "RKT", "TPO"],
-    "Manyar": ["GBG", "MYR", "JGR", "MGO"],
-    "Kanjeran": ["KPS", "PRK", "KBL", "KJR"]
-  };
+    Bangkalan: ["SPG", "KML", "ARB", "KPP", "BKL", "OMB", "BEA", "TBU"],
+    Gresik: ["CRM", "POG", "BPG", "DDS", "SDY", "KDE", "BWN", "GSK"],
+    Lamongan: ["SDD", "LMG", "BBA", "BDG"],
+    Pamekasan: ["BAB", "ABT", "SPK", "PRG", "AJA", "WRP", "SMP", "PME", "SPD", "MSL"],
+    Tandes: ["DMO", "TNS", "KNN", "BBE", "KLN", "LKI", "KRP"],
+    Ketintang: ["WRU", "IJK", "RKT", "TPO"],
+    Manyar: ["GBG", "MYR", "JGR", "MGO"],
+    Kanjeran: ["KPS", "PRK", "KBL", "KJR"],
+  }
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowUserDropdown(false);
+        setShowUserDropdown(false)
       }
       if (ekosistemDropdownRef.current && !ekosistemDropdownRef.current.contains(event.target as Node)) {
-        setShowEkosistemDropdown(false);
+        setShowEkosistemDropdown(false)
       }
       if (teldaDropdownRef.current && !teldaDropdownRef.current.contains(event.target as Node)) {
-        setShowTeldaDropdown(false);
+        setShowTeldaDropdown(false)
       }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => 
-      document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   // Handle logout
   const handleLogout = () => {
-    window.location.href = '/login';
-  };
+    window.location.href = "/login"
+  }
 
   // DATA DUMMY
   const sampleData = [
     {
       id: 1,
-      tanggal: '2024-01-15',
-      kategori: 'Visit Baru',
-      namaSales: 'John Doe',
-      telda: 'Ketintang',
-      sto: 'WRU',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'Toko ABC',
-      alamat: 'Jl. Sudirman No. 123',
-      ekosistem: 'Ruko',
+      tanggal: "2024-01-15",
+      kategori: "Visit Baru",
+      namaSales: "John Doe",
+      telda: "Ketintang",
+      sto: "WRU",
+      jenisKegiatan: "Door to door",
+      namaPOI: "Toko ABC",
+      alamat: "Jl. Sudirman No. 123",
+      ekosistem: "Ruko",
       visitKe: 1,
-      namaPIC: 'Jane Smith',
-      jabatanPIC: 'Manager',
-      noHP: '081234567890',
-      provider: 'Telkom',
-      detailProvider: 'Indihome',
-      abonemen: 'Rp 12.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Tidak Tertarik Berlangganan Indibiz',
-      detailInformasi: 'Sudah puas dengan indihome',
-      eviden: 'foto_survey.jpg'
+      namaPIC: "Jane Smith",
+      jabatanPIC: "Manager",
+      noHP: "081234567890",
+      provider: "Telkom",
+      detailProvider: "Indihome",
+      abonemen: "Rp 12.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Tidak Tertarik Berlangganan Indibiz",
+      detailInformasi: "Sudah puas dengan indihome",
+      eviden: "foto_survey.jpg",
     },
     {
       id: 2,
-      tanggal: '2024-01-16',
-      kategori: 'Follow Up',
-      namaSales: 'Dzawin',
-      telda: 'Gresik',
-      sto: 'SDY',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'RS ABCDE',
-      alamat: 'Jl. Asia Afrika No. 456',
-      ekosistem: 'Health',
+      tanggal: "2024-01-16",
+      kategori: "Follow Up",
+      namaSales: "Dzawin",
+      telda: "Gresik",
+      sto: "SDY",
+      jenisKegiatan: "Door to door",
+      namaPOI: "RS ABCDE",
+      alamat: "Jl. Asia Afrika No. 456",
+      ekosistem: "Health",
       visitKe: 2,
-      namaPIC: 'Bob Wilson',
-      jabatanPIC: 'Owner',
-      noHP: '081987654321',
-      provider: 'Kompetitor',
-      detailProvider: 'BizNet',
-      abonemen: 'Rp 20.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Tidak Tertarik Berlangganan Indibiz',
-      detailInformasi: 'BizNet lebih kencang',
-      eviden: 'foto_followup12.jpg'
+      namaPIC: "Bob Wilson",
+      jabatanPIC: "Owner",
+      noHP: "081987654321",
+      provider: "Kompetitor",
+      detailProvider: "BizNet",
+      abonemen: "Rp 20.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Tidak Tertarik Berlangganan Indibiz",
+      detailInformasi: "BizNet lebih kencang",
+      eviden: "foto_followup12.jpg",
     },
     {
       id: 3,
-      tanggal: '2025-02-16',
-      namaSales: 'Udin',
-      kategori: 'Follow Up',
-      telda: 'Ketintang',
-      sto: 'WRU',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'Gd Bangkit',
-      alamat: 'Jl. Asia Afrika No. 456',
-      ekosistem: 'Multifinance',
+      tanggal: "2025-02-16",
+      namaSales: "Udin",
+      kategori: "Follow Up",
+      telda: "Ketintang",
+      sto: "WRU",
+      jenisKegiatan: "Door to door",
+      namaPOI: "Gd Bangkit",
+      alamat: "Jl. Asia Afrika No. 456",
+      ekosistem: "Multifinance",
       visitKe: 2,
-      namaPIC: 'Bob marlin',
-      jabatanPIC: 'Owner',
-      noHP: '081987654321',
-      provider: 'Telkom Group',
-      detailProvider: 'Indibiz',
-      abonemen: 'Rp 1.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Tertarik Berlangganan Indibiz',
-      detailInformasi: 'sudah berlangganan',
-      eviden: 'whatsapp.jpg'
+      namaPIC: "Bob marlin",
+      jabatanPIC: "Owner",
+      noHP: "081987654321",
+      provider: "Telkom Group",
+      detailProvider: "Indibiz",
+      abonemen: "Rp 1.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Tertarik Berlangganan Indibiz",
+      detailInformasi: "sudah berlangganan",
+      eviden: "whatsapp.jpg",
     },
     {
       id: 4,
-      tanggal: '2024-02-10',
-      kategori: 'Visit Baru',
-      namaSales: 'Sari',
-      telda: 'Bangkalan',
-      sto: 'SPG',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'Hotel Merdeka',
-      alamat: 'Jl. Merdeka No. 789',
-      ekosistem: 'Hotel',
+      tanggal: "2024-02-10",
+      kategori: "Visit Baru",
+      namaSales: "Sari",
+      telda: "Bangkalan",
+      sto: "SPG",
+      jenisKegiatan: "Door to door",
+      namaPOI: "Hotel Merdeka",
+      alamat: "Jl. Merdeka No. 789",
+      ekosistem: "Hotel",
       visitKe: 1,
-      namaPIC: 'Ahmad Yani',
-      jabatanPIC: 'General Manager',
-      noHP: '081345678901',
-      provider: 'Kompetitor',
-      detailProvider: 'First Media',
-      abonemen: 'Rp 15.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Ragu-ragu atau masih dipertimbangkan',
-      detailInformasi: 'Perlu diskusi dengan owner',
-      eviden: 'foto_hotel.jpg'
+      namaPIC: "Ahmad Yani",
+      jabatanPIC: "General Manager",
+      noHP: "081345678901",
+      provider: "Kompetitor",
+      detailProvider: "First Media",
+      abonemen: "Rp 15.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Ragu-ragu atau masih dipertimbangkan",
+      detailInformasi: "Perlu diskusi dengan owner",
+      eviden: "foto_hotel.jpg",
     },
     {
       id: 5,
-      tanggal: '2024-02-12',
-      kategori: 'Visit Baru',
-      namaSales: 'Budi',
-      telda: 'Tandes',
-      sto: 'DMO',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'SDN Tandes 1',
-      alamat: 'Jl. Pendidikan No. 123',
-      ekosistem: 'Sekolah',
+      tanggal: "2024-02-12",
+      kategori: "Visit Baru",
+      namaSales: "Budi",
+      telda: "Tandes",
+      sto: "DMO",
+      jenisKegiatan: "Door to door",
+      namaPOI: "SDN Tandes 1",
+      alamat: "Jl. Pendidikan No. 123",
+      ekosistem: "Sekolah",
       visitKe: 1,
-      namaPIC: 'Ibu Siti',
-      jabatanPIC: 'Kepala Sekolah',
-      noHP: '081456789012',
-      provider: 'Telkom',
-      detailProvider: 'Indihome',
-      abonemen: 'Rp 5.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Tertarik Berlangganan Indibiz',
-      detailInformasi: 'Butuh upgrade bandwidth',
-      eviden: 'foto_sekolah.jpg'
+      namaPIC: "Ibu Siti",
+      jabatanPIC: "Kepala Sekolah",
+      noHP: "081456789012",
+      provider: "Telkom",
+      detailProvider: "Indihome",
+      abonemen: "Rp 5.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Tertarik Berlangganan Indibiz",
+      detailInformasi: "Butuh upgrade bandwidth",
+      eviden: "foto_sekolah.jpg",
     },
     {
       id: 6,
-      tanggal: '2024-02-14',
-      kategori: 'Follow Up',
-      namaSales: 'Rina',
-      telda: 'Manyar',
-      sto: 'GBG',
-      jenisKegiatan: 'Door to door',
-      namaPOI: 'PT Ekspedisi Nusantara',
-      alamat: 'Jl. Industri No. 456',
-      ekosistem: 'Ekspedisi',
+      tanggal: "2024-02-14",
+      kategori: "Follow Up",
+      namaSales: "Rina",
+      telda: "Manyar",
+      sto: "GBG",
+      jenisKegiatan: "Door to door",
+      namaPOI: "PT Ekspedisi Nusantara",
+      alamat: "Jl. Industri No. 456",
+      ekosistem: "Ekspedisi",
       visitKe: 3,
-      namaPIC: 'Pak Joko',
-      jabatanPIC: 'Operations Manager',
-      noHP: '081567890123',
-      provider: 'Kompetitor',
-      detailProvider: 'Biznet',
-      abonemen: 'Rp 25.000.000',
-      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
-      detailFeedback: 'Tertarik Berlangganan Indibiz',
-      detailInformasi: 'Siap migrasi bulan depan',
-      eviden: 'kontrak_ekspedisi.pdf'
-    }
-  ];
+      namaPIC: "Pak Joko",
+      jabatanPIC: "Operations Manager",
+      noHP: "081567890123",
+      provider: "Kompetitor",
+      detailProvider: "Biznet",
+      abonemen: "Rp 25.000.000",
+      feedback: "Bertemu dengan PIC/Owner/Manajemen",
+      detailFeedback: "Tertarik Berlangganan Indibiz",
+      detailInformasi: "Siap migrasi bulan depan",
+      eviden: "kontrak_ekspedisi.pdf",
+    },
+  ]
 
   // Apply filters
-  const filteredData = sampleData.filter(item => {
-    const matchesSearch = Object.values(item).some(value =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    
-    const matchesEkosistem = !filterEkosistem || item.ekosistem === filterEkosistem;
-    const matchesTelda = !filterTelda || item.telda === filterTelda;
-    const matchesSTO = !filterSTO || item.sto === filterSTO;
-    
-    return matchesSearch && matchesEkosistem && matchesTelda && matchesSTO;
-  });
+  const filteredData = sampleData.filter((item) => {
+    const matchesSearch = Object.values(item).some((value) =>
+      value.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+    )
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
+    const matchesEkosistem = !filterEkosistem || item.ekosistem === filterEkosistem
+    const matchesTelda = !filterTelda || item.telda === filterTelda
+    const matchesSTO = !filterSTO || item.sto === filterSTO
+
+    return matchesSearch && matchesEkosistem && matchesTelda && matchesSTO
+  })
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentData = filteredData.slice(startIndex, endIndex)
+
+  // Export Data Function
+  const handleExportData = () => {
+    // Define column headers
+    const headers = [
+      "ID",
+      "Tanggal",
+      "Kategori",
+      "Nama Sales",
+      "Telda",
+      "STO",
+      "Jenis Kegiatan",
+      "Nama POI",
+      "Alamat",
+      "Ekosistem",
+      "Visit Ke",
+      "Nama PIC",
+      "Jabatan PIC",
+      "No HP",
+      "Provider",
+      "Detail Provider",
+      "Abonemen",
+      "Feedback",
+      "Detail Feedback",
+      "Detail Informasi",
+      "Eviden",
+    ]
+
+    // Convert data to CSV format
+    const csvContent = [
+      headers.join(","), // Header row
+      ...filteredData.map((item) =>
+        [
+          item.id,
+          `"${item.tanggal}"`,
+          `"${item.kategori}"`,
+          `"${item.namaSales}"`,
+          `"${item.telda}"`,
+          `"${item.sto}"`,
+          `"${item.jenisKegiatan}"`,
+          `"${item.namaPOI}"`,
+          `"${item.alamat}"`,
+          `"${item.ekosistem}"`,
+          item.visitKe,
+          `"${item.namaPIC}"`,
+          `"${item.jabatanPIC}"`,
+          `"${item.noHP}"`,
+          `"${item.provider}"`,
+          `"${item.detailProvider}"`,
+          `"${item.abonemen}"`,
+          `"${item.feedback}"`,
+          `"${item.detailFeedback}"`,
+          `"${item.detailInformasi}"`,
+          `"${item.eviden}"`,
+        ].join(","),
+      ),
+    ].join("\n")
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob)
+      link.setAttribute("href", url)
+
+      // Generate filename with current date and applied filters
+      const currentDate = new Date().toISOString().split("T")[0]
+      let filename = `data-sales-${currentDate}`
+
+      // Add filter info to filename
+      if (filterEkosistem) filename += `-${filterEkosistem}`
+      if (filterTelda) filename += `-${filterTelda}`
+      if (filterSTO) filename += `-${filterSTO}`
+
+      link.setAttribute("download", `${filename}.csv`)
+      link.style.visibility = "hidden"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Show success message (optional)
+      alert(`Data berhasil diexport! ${filteredData.length} record telah diunduh.`)
+    }
+  }
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+    setCurrentPage(page)
+  }
 
   // Handle filter changes
   const handleTeldaChange = (telda: string) => {
-    setFilterTelda(telda);
-    setFilterSTO(''); // Reset STO when Telda changes
-    setShowTeldaDropdown(false);
-  };
+    setFilterTelda(telda)
+    setFilterSTO("") // Reset STO when Telda changes
+    setShowTeldaDropdown(false)
+  }
 
   const handleEkosistemChange = (ekosistem: string) => {
-    setFilterEkosistem(ekosistem);
-    setShowEkosistemDropdown(false);
-  };
+    setFilterEkosistem(ekosistem)
+    setShowEkosistemDropdown(false)
+  }
 
   const clearFilters = () => {
-    setFilterEkosistem('');
-    setFilterTelda('');
-    setFilterSTO('');
-    setSearchTerm('');
-  };
+    setFilterEkosistem("")
+    setFilterTelda("")
+    setFilterSTO("")
+    setSearchTerm("")
+  }
 
   const getEkosistemBadge = (ekosistem: string) => {
     const badges: Record<string, string> = {
@@ -255,24 +361,26 @@ const DashboardAdmin = () => {
       Agriculture: "bg-lime-100 text-lime-800",
       Properti: "bg-cyan-100 text-cyan-800",
       Manufaktur: "bg-teal-100 text-teal-800",
-      "Media & Communication": "bg-rose-100 text-rose-800"
+      "Media & Communication": "bg-rose-100 text-rose-800",
     }
     return badges[ekosistem] || "bg-gray-100 text-gray-800"
   }
 
-  const activeFiltersCount = [filterEkosistem, filterTelda, filterSTO].filter(Boolean).length;
+  const activeFiltersCount = [filterEkosistem, filterTelda, filterSTO].filter(Boolean).length
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-lg transition-all duration-300 flex flex-col`}>
+      <div
+        className={`${sidebarCollapsed ? "w-16" : "w-64"} bg-white shadow-lg transition-all duration-300 flex flex-col`}
+      >
         {/* Logo Section */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className={`${sidebarCollapsed ? 'hidden' : 'block'}`}>
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/id/thumb/c/c4/Telkom_Indonesia_2013.svg/1200px-Telkom_Indonesia_2013.svg.png" 
-                alt="Telkom Indonesia" 
+            <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
+              <img
+                src="https://upload.wikimedia.org/wikipedia/id/thumb/c/c4/Telkom_Indonesia_2013.svg/1200px-Telkom_Indonesia_2013.svg.png"
+                alt="Telkom Indonesia"
                 className="h-12 w-auto"
               />
             </div>
@@ -292,12 +400,12 @@ const DashboardAdmin = () => {
             {!sidebarCollapsed && <span className="font-medium">Dashboard</span>}
           </button>
           <a href="/register">
-          <button className="flex-1 p-4 space-y-2 w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-            <Users size={20} />
-            {!sidebarCollapsed && <span className="font-medium">Register Akun</span>}
-          </button>
+            <button className="flex-1 p-4 space-y-2 w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+              <Users size={20} />
+              {!sidebarCollapsed && <span className="font-medium">Register Akun</span>}
+            </button>
           </a>
-                  
+
           <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
             <BarChart3 size={20} />
             {!sidebarCollapsed && <span className="font-medium">Visualisasi Data</span>}
@@ -306,7 +414,7 @@ const DashboardAdmin = () => {
 
         {/* User Info with Dropdown */}
         <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
-          <div className={`${sidebarCollapsed ? 'hidden' : 'block'}`}>
+          <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
             <button
               onClick={() => setShowUserDropdown(!showUserDropdown)}
               className="w-full flex items-center justify-between space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
@@ -320,9 +428,9 @@ const DashboardAdmin = () => {
                   <p className="text-xs text-gray-500">Administrator</p>
                 </div>
               </div>
-              <ChevronDown 
-                size={16} 
-                className={`text-gray-400 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} 
+              <ChevronDown
+                size={16}
+                className={`text-gray-400 transition-transform ${showUserDropdown ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -341,7 +449,7 @@ const DashboardAdmin = () => {
               </div>
             )}
           </div>
-                  
+
           {/* Collapsed state - just show logout icon */}
           {sidebarCollapsed && (
             <button
@@ -365,7 +473,10 @@ const DashboardAdmin = () => {
               <p className="text-sm text-gray-600">Kelola data sales dan monitoring aktivitas</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+              <button
+                onClick={handleExportData}
+                className="flex items-center space-x-2 px-4 py-2 text-red-700 bg-white border border-red-700 rounded-md hover:bg-red-100 transition-colors"
+              >
                 <Download size={16} />
                 <span>Export Data</span>
               </button>
@@ -396,18 +507,21 @@ const DashboardAdmin = () => {
                   <button
                     onClick={() => setShowEkosistemDropdown(!showEkosistemDropdown)}
                     className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
-                      filterEkosistem ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                      filterEkosistem ? "border-red-500 bg-red-50 text-red-700" : "border-gray-300"
                     }`}
                   >
-                    <span>{filterEkosistem || 'Ekosistem'}</span>
-                    <ChevronDown size={16} className={`transition-transform ${showEkosistemDropdown ? 'rotate-180' : ''}`} />
+                    <span>{filterEkosistem || "Ekosistem"}</span>
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform ${showEkosistemDropdown ? "rotate-180" : ""}`}
+                    />
                   </button>
-                  
+
                   {showEkosistemDropdown && (
                     <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                       <div className="py-1">
                         <button
-                          onClick={() => handleEkosistemChange('')}
+                          onClick={() => handleEkosistemChange("")}
                           className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
                         >
                           Semua Ekosistem
@@ -417,7 +531,7 @@ const DashboardAdmin = () => {
                             key={option}
                             onClick={() => handleEkosistemChange(option)}
                             className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
-                              filterEkosistem === option ? 'bg-red-50 text-red-700' : ''
+                              filterEkosistem === option ? "bg-red-50 text-red-700" : ""
                             }`}
                           >
                             {option}
@@ -433,18 +547,21 @@ const DashboardAdmin = () => {
                   <button
                     onClick={() => setShowTeldaDropdown(!showTeldaDropdown)}
                     className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
-                      filterTelda ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                      filterTelda ? "border-red-500 bg-red-50 text-red-700" : "border-gray-300"
                     }`}
                   >
-                    <span>{filterTelda || 'Telda'}</span>
-                    <ChevronDown size={16} className={`transition-transform ${showTeldaDropdown ? 'rotate-180' : ''}`} />
+                    <span>{filterTelda || "Telda"}</span>
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform ${showTeldaDropdown ? "rotate-180" : ""}`}
+                    />
                   </button>
-                  
+
                   {showTeldaDropdown && (
                     <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                       <div className="py-1">
                         <button
-                          onClick={() => handleTeldaChange('')}
+                          onClick={() => handleTeldaChange("")}
                           className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
                         >
                           Semua Telda
@@ -454,7 +571,7 @@ const DashboardAdmin = () => {
                             <button
                               onClick={() => handleTeldaChange(telda)}
                               className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors font-medium ${
-                                filterTelda === telda ? 'bg-red-50 text-red-700' : ''
+                                filterTelda === telda ? "bg-red-50 text-red-700" : ""
                               }`}
                             >
                               {telda}
@@ -465,9 +582,9 @@ const DashboardAdmin = () => {
                                   <p className="text-xs text-gray-500 mb-2">Pilih STO:</p>
                                   <div className="grid grid-cols-2 gap-1">
                                     <button
-                                      onClick={() => setFilterSTO('')}
+                                      onClick={() => setFilterSTO("")}
                                       className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
-                                        !filterSTO ? 'bg-white text-red-600' : 'text-gray-600'
+                                        !filterSTO ? "bg-white text-red-600" : "text-gray-600"
                                       }`}
                                     >
                                       Semua STO
@@ -477,7 +594,7 @@ const DashboardAdmin = () => {
                                         key={sto}
                                         onClick={() => setFilterSTO(sto)}
                                         className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
-                                          filterSTO === sto ? 'bg-white text-red-600' : 'text-gray-600'
+                                          filterSTO === sto ? "bg-white text-red-600" : "text-gray-600"
                                         }`}
                                       >
                                         {sto}
@@ -505,7 +622,7 @@ const DashboardAdmin = () => {
                   </button>
                 )}
               </div>
-              
+
               <div className="text-sm text-gray-500">
                 Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredData.length)} dari {filteredData.length} data
               </div>
@@ -519,7 +636,7 @@ const DashboardAdmin = () => {
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                     Ekosistem: {filterEkosistem}
                     <button
-                      onClick={() => setFilterEkosistem('')}
+                      onClick={() => setFilterEkosistem("")}
                       className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
                     >
                       <X size={12} />
@@ -530,7 +647,10 @@ const DashboardAdmin = () => {
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
                     Telda: {filterTelda}
                     <button
-                      onClick={() => {setFilterTelda(''); setFilterSTO('');}}
+                      onClick={() => {
+                        setFilterTelda("")
+                        setFilterSTO("")
+                      }}
                       className="ml-1 hover:bg-green-200 rounded-full p-0.5"
                     >
                       <X size={12} />
@@ -540,10 +660,7 @@ const DashboardAdmin = () => {
                 {filterSTO && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
                     STO: {filterSTO}
-                    <button
-                      onClick={() => setFilterSTO('')}
-                      className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
-                    >
+                    <button onClick={() => setFilterSTO("")} className="ml-1 hover:bg-purple-200 rounded-full p-0.5">
                       <X size={12} />
                     </button>
                   </span>
@@ -558,27 +675,69 @@ const DashboardAdmin = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Sales</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telda</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STO</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kegiatan</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama POI</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ekosistem</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visit ke</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama PIC</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jabatan PIC</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Provider</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abonemen</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Feedback</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Informasi</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eviden</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tanggal
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Kategori
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nama Sales
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Telda
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STO
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Jenis Kegiatan
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nama POI
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Alamat
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ekosistem
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Visit ke
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nama PIC
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Jabatan PIC
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      No HP
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Provider
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Detail Provider
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Abonemen
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Feedback
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Detail Feedback
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Detail Informasi
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Eviden
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -586,7 +745,9 @@ const DashboardAdmin = () => {
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.tanggal}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.kategori}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.namaSales}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {item.namaSales}
+                      </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.telda}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.sto}</td>
                       <td className="px-4 py-4 whitespace-nowrap">
@@ -613,24 +774,28 @@ const DashboardAdmin = () => {
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.detailProvider}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{item.abonemen}</td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          item.feedback === 'Bertemu dengan PIC/Owner/Manajemen' ? 'bg-green-100 text-green-800' :
-                          item.feedback === 'Tidak bertemu dengan PIC' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            item.feedback === "Bertemu dengan PIC/Owner/Manajemen"
+                              ? "bg-green-100 text-green-800"
+                              : item.feedback === "Tidak bertemu dengan PIC"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                          }`}
+                        >
                           {item.feedback}
                         </span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            item.detailFeedback === 'Tertarik Berlangganan Indibiz'
-                              ? 'bg-green-100 text-green-800'
-                              : item.detailFeedback === 'Tidak Tertarik Berlangganan Indibiz'
-                              ? 'bg-red-100 text-red-800'
-                              : item.detailFeedback === 'Ragu-ragu atau masih dipertimbangkan'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
+                            item.detailFeedback === "Tertarik Berlangganan Indibiz"
+                              ? "bg-green-100 text-green-800"
+                              : item.detailFeedback === "Tidak Tertarik Berlangganan Indibiz"
+                                ? "bg-red-100 text-red-800"
+                                : item.detailFeedback === "Ragu-ragu atau masih dipertimbangkan"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {item.detailFeedback}
@@ -671,8 +836,8 @@ const DashboardAdmin = () => {
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Menampilkan <span className="font-medium">{startIndex + 1}</span> sampai{' '}
-                      <span className="font-medium">{Math.min(endIndex, filteredData.length)}</span> dari{' '}
+                      Menampilkan <span className="font-medium">{startIndex + 1}</span> sampai{" "}
+                      <span className="font-medium">{Math.min(endIndex, filteredData.length)}</span> dari{" "}
                       <span className="font-medium">{filteredData.length}</span> hasil
                     </p>
                   </div>
@@ -684,8 +849,8 @@ const DashboardAdmin = () => {
                           onClick={() => handlePageChange(page)}
                           className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                             page === currentPage
-                              ? 'z-10 bg-red-50 border-red-500 text-red-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                              ? "z-10 bg-red-50 border-red-500 text-red-600"
+                              : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                           }`}
                         >
                           {page}
@@ -700,7 +865,7 @@ const DashboardAdmin = () => {
         </main>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DashboardAdmin;
+export default DashboardAdmin

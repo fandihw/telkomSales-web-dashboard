@@ -4,6 +4,7 @@ import { User, Mail, Lock, MessageCircle, UserCheck, Eye, EyeOff, ArrowLeft, Use
 interface FormData {
   email: string;
   password: string;
+  name: string;
   telegramId: string;
   role: string;
 }
@@ -23,6 +24,7 @@ export default function Register() {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
+    name: '',
     telegramId: '',
     role: ''
   });
@@ -63,6 +65,13 @@ export default function Register() {
       newErrors.password = 'Password wajib diisi';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password minimal 8 karakter';
+    }
+
+    // Name validation
+    if (!formData.name) {
+      newErrors.name = 'Nama wajib diisi';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Nama minimal 2 karakter';
     }
 
     // Telegram ID validation
@@ -108,6 +117,7 @@ export default function Register() {
         setFormData({
           email: '',
           password: '',
+          name: '',
           telegramId: '',
           role: ''
         });
@@ -159,8 +169,8 @@ export default function Register() {
               Dashboard
             </button>
             
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md mt-2">
-              <Users className="mr-3 w-5 h-5" />
+            <div className="flex-1 p-4 space-y-2 w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-700 hover:bg-gray-200 transition-colors">
+              <Users size={20} className="mr-3 w-5 h-5" />
               Register Akun
             </div>
           </div>
@@ -246,6 +256,30 @@ export default function Register() {
                   )}
                 </div>
 
+                {/* Name Field */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nama<span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors ${
+                        errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      }`}
+                      placeholder="Masukkan Nama"
+                    />
+                  </div>
+                  {errors.name && (
+                    <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+                  )}
+                </div>
+
                 {/* Telegram ID Field */}
                 <div>
                   <label htmlFor="telegramId" className="block text-sm font-medium text-gray-700 mb-2">
@@ -304,7 +338,7 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-700 rounded-md hover:bg-red-100"
                   >
                     Batal
                   </button>
@@ -314,7 +348,7 @@ export default function Register() {
                     className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
                       isLoading
                         ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700'
+                        : 'bg-red-700 hover:bg-red-800'
                     }`}
                   >
                     {isLoading ? (
