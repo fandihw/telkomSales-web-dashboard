@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Search, ChevronDown, Download, Eye, LogOut, Home, X, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ChevronDown, Eye, LogOut, Home, X} from 'lucide-react';
 
 const DashboardSales = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

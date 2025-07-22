@@ -61,8 +61,8 @@ const Login = () => {
                 required
               />
             </div>
-
-            <div className="flex items-center justify-between mb-6">
+            
+            {/* <div className="flex items-center justify-between mb-6">
               <label className="flex items-center text-sm text-gray-700">
                 <input type="checkbox" className="mr-2 text-red-600 focus:ring-red-500" />
                 Ingat saya
@@ -70,7 +70,7 @@ const Login = () => {
               <a href="#" className="text-sm text-red-600 hover:underline">
                 Lupa password?
               </a>
-            </div>
+            </div> */}
 
             <button
               type="submit"
