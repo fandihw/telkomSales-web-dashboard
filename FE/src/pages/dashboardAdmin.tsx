@@ -1,19 +1,52 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Search, Filter, Download, BarChart3, Users, Eye, LogOut, ChevronDown, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ChevronDown, Download, BarChart3, Users, Eye, LogOut, Home, X } from 'lucide-react';
 
 const DashboardAdmin = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  
+  // Filter states
+  const [filterEkosistem, setFilterEkosistem] = useState('');
+  const [filterTelda, setFilterTelda] = useState('');
+  const [filterSTO, setFilterSTO] = useState('');
+  const [showEkosistemDropdown, setShowEkosistemDropdown] = useState(false);
+  const [showTeldaDropdown, setShowTeldaDropdown] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const ekosistemDropdownRef = useRef<HTMLDivElement>(null);
+  const teldaDropdownRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 10;
 
-  // Close dropdown when clicking outside
+  // Filter options
+  const ekosistemOptions = [
+    "Ruko", "Sekolah", "Hotel", "Multifinance", "Health", "Ekspedisi",
+    "Energi", "Agriculture", "Properti", "Manufaktur", "Media & Communication"
+  ];
+
+  const teldaSTOMapping = {
+    "Bangkalan": ["SPG", "KML", "ARB", "KPP", "BKL", "OMB", "BEA", "TBU"],
+    "Gresik": ["CRM", "POG", "BPG", "DDS", "SDY", "KDE", "BWN", "GSK"],
+    "Lamongan": ["SDD", "LMG", "BBA", "BDG"],
+    "Pamekasan": ["BAB", "ABT", "SPK", "PRG", "AJA", "WRP", "SMP", "PME", "SPD", "MSL"],
+    "Tandes": ["DMO", "TNS", "KNN", "BBE", "KLN", "LKI", "KRP"],
+    "Ketintang": ["WRU", "IJK", "RKT", "TPO"],
+    "Manyar": ["GBG", "MYR", "JGR", "MGO"],
+    "Kanjeran": ["KPS", "PRK", "KBL", "KJR"]
+  };
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowUserDropdown(false);
+      }
+      if (ekosistemDropdownRef.current && !ekosistemDropdownRef.current.contains(event.target as Node)) {
+        setShowEkosistemDropdown(false);
+      }
+      if (teldaDropdownRef.current && !teldaDropdownRef.current.contains(event.target as Node)) {
+        setShowTeldaDropdown(false);
       }
     };
 
@@ -24,15 +57,10 @@ const DashboardAdmin = () => {
 
   // Handle logout
   const handleLogout = () => {
-    // Clear any stored authentication data (localStorage, sessionStorage, etc.)
-    // In a real app, you might clear tokens, user data, etc.
-        
-    // For demonstration, we'll just redirect to login page
-    // In a real React Router setup, you'd use navigate('/login') or similar
     window.location.href = '/login';
   };
 
-  // DATA DUMMY - nanti akan diambil dari MongoDB
+  // DATA DUMMY
   const sampleData = [
     {
       id: 1,
@@ -103,13 +131,89 @@ const DashboardAdmin = () => {
       detailInformasi: 'sudah berlangganan',
       eviden: 'whatsapp.jpg'
     },
+    {
+      id: 4,
+      tanggal: '2024-02-10',
+      kategori: 'Visit Baru',
+      namaSales: 'Sari',
+      telda: 'Bangkalan',
+      sto: 'SPG',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'Hotel Merdeka',
+      alamat: 'Jl. Merdeka No. 789',
+      ekosistem: 'Hotel',
+      visitKe: 1,
+      namaPIC: 'Ahmad Yani',
+      jabatanPIC: 'General Manager',
+      noHP: '081345678901',
+      provider: 'Kompetitor',
+      detailProvider: 'First Media',
+      abonemen: 'Rp 15.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Ragu-ragu atau masih dipertimbangkan',
+      detailInformasi: 'Perlu diskusi dengan owner',
+      eviden: 'foto_hotel.jpg'
+    },
+    {
+      id: 5,
+      tanggal: '2024-02-12',
+      kategori: 'Visit Baru',
+      namaSales: 'Budi',
+      telda: 'Tandes',
+      sto: 'DMO',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'SDN Tandes 1',
+      alamat: 'Jl. Pendidikan No. 123',
+      ekosistem: 'Sekolah',
+      visitKe: 1,
+      namaPIC: 'Ibu Siti',
+      jabatanPIC: 'Kepala Sekolah',
+      noHP: '081456789012',
+      provider: 'Telkom',
+      detailProvider: 'Indihome',
+      abonemen: 'Rp 5.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Tertarik Berlangganan Indibiz',
+      detailInformasi: 'Butuh upgrade bandwidth',
+      eviden: 'foto_sekolah.jpg'
+    },
+    {
+      id: 6,
+      tanggal: '2024-02-14',
+      kategori: 'Follow Up',
+      namaSales: 'Rina',
+      telda: 'Manyar',
+      sto: 'GBG',
+      jenisKegiatan: 'Door to door',
+      namaPOI: 'PT Ekspedisi Nusantara',
+      alamat: 'Jl. Industri No. 456',
+      ekosistem: 'Ekspedisi',
+      visitKe: 3,
+      namaPIC: 'Pak Joko',
+      jabatanPIC: 'Operations Manager',
+      noHP: '081567890123',
+      provider: 'Kompetitor',
+      detailProvider: 'Biznet',
+      abonemen: 'Rp 25.000.000',
+      feedback: 'Bertemu dengan PIC/Owner/Manajemen',
+      detailFeedback: 'Tertarik Berlangganan Indibiz',
+      detailInformasi: 'Siap migrasi bulan depan',
+      eviden: 'kontrak_ekspedisi.pdf'
+    }
   ];
 
-  const filteredData = sampleData.filter(item =>
-    Object.values(item).some(value =>
+  // Apply filters
+  const filteredData = sampleData.filter(item => {
+    const matchesSearch = Object.values(item).some(value =>
       value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+    );
+    
+    const matchesEkosistem = !filterEkosistem || item.ekosistem === filterEkosistem;
+    const matchesTelda = !filterTelda || item.telda === filterTelda;
+    const matchesSTO = !filterSTO || item.sto === filterSTO;
+    
+    return matchesSearch && matchesEkosistem && matchesTelda && matchesSTO;
+  });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -118,6 +222,25 @@ const DashboardAdmin = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // Handle filter changes
+  const handleTeldaChange = (telda: string) => {
+    setFilterTelda(telda);
+    setFilterSTO(''); // Reset STO when Telda changes
+    setShowTeldaDropdown(false);
+  };
+
+  const handleEkosistemChange = (ekosistem: string) => {
+    setFilterEkosistem(ekosistem);
+    setShowEkosistemDropdown(false);
+  };
+
+  const clearFilters = () => {
+    setFilterEkosistem('');
+    setFilterTelda('');
+    setFilterSTO('');
+    setSearchTerm('');
   };
 
   const getEkosistemBadge = (ekosistem: string) => {
@@ -132,10 +255,12 @@ const DashboardAdmin = () => {
       Agriculture: "bg-lime-100 text-lime-800",
       Properti: "bg-cyan-100 text-cyan-800",
       Manufaktur: "bg-teal-100 text-teal-800",
-      MediaCommunication: "bg-rose-100 text-rose-800"
+      "Media & Communication": "bg-rose-100 text-rose-800"
     }
     return badges[ekosistem] || "bg-gray-100 text-gray-800"
   }
+
+  const activeFiltersCount = [filterEkosistem, filterTelda, filterSTO].filter(Boolean).length;
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -252,8 +377,9 @@ const DashboardAdmin = () => {
         <main className="flex-1 overflow-auto p-6">
           {/* Search and Filter Bar */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4 flex-1">
+                {/* Search Input */}
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
@@ -264,15 +390,166 @@ const DashboardAdmin = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Filter size={16} />
-                  <span>Filter</span>
-                </button>
+
+                {/* Ekosistem Filter */}
+                <div className="relative" ref={ekosistemDropdownRef}>
+                  <button
+                    onClick={() => setShowEkosistemDropdown(!showEkosistemDropdown)}
+                    className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
+                      filterEkosistem ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                    }`}
+                  >
+                    <span>{filterEkosistem || 'Ekosistem'}</span>
+                    <ChevronDown size={16} className={`transition-transform ${showEkosistemDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showEkosistemDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleEkosistemChange('')}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
+                        >
+                          Semua Ekosistem
+                        </button>
+                        {ekosistemOptions.map((option) => (
+                          <button
+                            key={option}
+                            onClick={() => handleEkosistemChange(option)}
+                            className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                              filterEkosistem === option ? 'bg-red-50 text-red-700' : ''
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Telda Filter */}
+                <div className="relative" ref={teldaDropdownRef}>
+                  <button
+                    onClick={() => setShowTeldaDropdown(!showTeldaDropdown)}
+                    className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors ${
+                      filterTelda ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300'
+                    }`}
+                  >
+                    <span>{filterTelda || 'Telda'}</span>
+                    <ChevronDown size={16} className={`transition-transform ${showTeldaDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showTeldaDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="py-1">
+                        <button
+                          onClick={() => handleTeldaChange('')}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-gray-500"
+                        >
+                          Semua Telda
+                        </button>
+                        {Object.keys(teldaSTOMapping).map((telda) => (
+                          <div key={telda}>
+                            <button
+                              onClick={() => handleTeldaChange(telda)}
+                              className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors font-medium ${
+                                filterTelda === telda ? 'bg-red-50 text-red-700' : ''
+                              }`}
+                            >
+                              {telda}
+                            </button>
+                            {filterTelda === telda && (
+                              <div className="bg-gray-50 border-t border-gray-100">
+                                <div className="px-4 py-2">
+                                  <p className="text-xs text-gray-500 mb-2">Pilih STO:</p>
+                                  <div className="grid grid-cols-2 gap-1">
+                                    <button
+                                      onClick={() => setFilterSTO('')}
+                                      className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
+                                        !filterSTO ? 'bg-white text-red-600' : 'text-gray-600'
+                                      }`}
+                                    >
+                                      Semua STO
+                                    </button>
+                                    {teldaSTOMapping[telda as keyof typeof teldaSTOMapping].map((sto) => (
+                                      <button
+                                        key={sto}
+                                        onClick={() => setFilterSTO(sto)}
+                                        className={`text-xs px-2 py-1 rounded text-left hover:bg-white transition-colors ${
+                                          filterSTO === sto ? 'bg-white text-red-600' : 'text-gray-600'
+                                        }`}
+                                      >
+                                        {sto}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Clear Filters Button */}
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center space-x-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X size={16} />
+                    <span className="text-sm">Clear ({activeFiltersCount})</span>
+                  </button>
+                )}
               </div>
+              
               <div className="text-sm text-gray-500">
                 Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredData.length)} dari {filteredData.length} data
               </div>
             </div>
+
+            {/* Active Filters Display */}
+            {activeFiltersCount > 0 && (
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
+                <span className="text-sm text-gray-500">Filter aktif:</span>
+                {filterEkosistem && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                    Ekosistem: {filterEkosistem}
+                    <button
+                      onClick={() => setFilterEkosistem('')}
+                      className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {filterTelda && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                    Telda: {filterTelda}
+                    <button
+                      onClick={() => {setFilterTelda(''); setFilterSTO('');}}
+                      className="ml-1 hover:bg-green-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {filterSTO && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                    STO: {filterSTO}
+                    <button
+                      onClick={() => setFilterSTO('')}
+                      className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Data Table */}

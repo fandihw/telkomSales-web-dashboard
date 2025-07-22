@@ -1,22 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-  Search,
-  Download,
-  ChevronLeft,
-  ChevronRight,
-  BarChart3,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Eye,
-  Plus,
-  LogOut,
-  ChevronDown,
-  User2,
-  Home,
-} from "lucide-react"
+import { Search, Download, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Users, DollarSign, Eye, Plus, LogOut, ChevronDown, User2, Home } from "lucide-react"
 
 interface SalesData {
   id: string
@@ -140,18 +125,6 @@ export default function DashboardSales() {
     const userSalesData = mockData.filter((item) => item.namaSales === currentSalesName)
     setSalesData(userSalesData)
     setFilteredData(userSalesData)
-    // Calculate stats for current sales
-    const totalVisit = userSalesData.length
-    const currentMonth = new Date().getMonth() + 1
-    const visitBulanIni = userSalesData.filter((item) => new Date(item.tanggal).getMonth() + 1 === currentMonth).length
-    const prospekAktif = userSalesData.filter((item) => item.kategori === "Follow Up").length
-    const konversiRate = totalVisit > 0 ? Math.round((visitBulanIni / totalVisit) * 100) : 0
-    setStats({
-      totalVisit,
-      visitBulanIni,
-      prospekAktif,
-      konversiRate,
-    })
   }, [])
 
   useEffect(() => {
@@ -324,58 +297,6 @@ export default function DashboardSales() {
             </div>
           </div>
         </header>
-        {/* Stats Cards */}
-        <div className="p-6 pb-0">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <BarChart3 className="w-8 h-8 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Kunjungan</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.totalVisit}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <TrendingUp className="w-8 h-8 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Bulan Ini</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.visitBulanIni}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Users className="w-8 h-8 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Prospek Aktif</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.prospekAktif}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <DollarSign className="w-8 h-8 text-red-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Konversi Rate</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.konversiRate}%</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         {/* Data Table */}
         <main className="flex-1 p-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
